@@ -40,9 +40,18 @@
         #display {
             font-size: 80px;
             font-weight: 600;
-            margin-bottom: 25px;
+            margin-bottom: 10px; /* Reduzi a margem para acomodar o novo display */
             font-variant-numeric: tabular-nums;
             transition: font-size 0.3s ease;
+        }
+
+        /* Novo: Estilo para o display da hora final */
+        #endTimeDisplay {
+            font-size: 18px;
+            color: #8e8e93;
+            margin-bottom: 25px;
+            height: 22px; /* Reserva espaço para evitar pulos no layout */
+            transition: opacity 0.3s ease;
         }
         
         /* Estilo para a área de input */
@@ -176,6 +185,7 @@
     <div class="timer-container" id="timerContainer">
         <h1>Contador Regressivo</h1>
         <div id="display">00:00</div>
+        <div id="endTimeDisplay"></div> <!-- Novo: Mostrador da hora final -->
         
         <div class="input-area">
             <input type="number" id="minutesInput" placeholder="0" min="0">
@@ -198,6 +208,7 @@
     <script>
         // Seleciona os elementos do HTML
         const display = document.getElementById('display');
+        const endTimeDisplay = document.getElementById('endTimeDisplay'); // Novo
         const minutesInput = document.getElementById('minutesInput');
         const secondsInput = document.getElementById('secondsInput');
         const messageInput = document.getElementById('messageInput');
@@ -219,24 +230,37 @@
             display.textContent = `${formatarNumero(minutos)}:${formatarNumero(segundos)}`;
         }
 
-        function criarFestaTelaCheia() {
-            // Mostra o overlay
-            festaOverlay.style.display = 'flex';
+        // Novo: Função para calcular e mostrar a hora final
+        function updateEndTimeDisplay() {
+            const minutos = parseInt(minutesInput.value) || 0;
+            const segundos = parseInt(secondsInput.value) || 0;
+            const totalSegundos = (minutos * 60) + segundos;
 
-            // Adiciona a mensagem
+            if (totalSegundos > 0) {
+                const agora = new Date();
+                const horaFinal = new Date(agora.getTime() + totalSegundos * 1000);
+                const horas = formatarNumero(horaFinal.getHours());
+                const mins = formatarNumero(horaFinal.getMinutes());
+                endTimeDisplay.textContent = `Terminará às ${horas}:${mins}`;
+            } else {
+                endTimeDisplay.textContent = '';
+            }
+        }
+
+        function criarFestaTelaCheia() {
+            festaOverlay.style.display = 'flex';
             const mensagemFinal = messageInput.value || "Tempo Esgotado!";
             const textoFesta = document.createElement('h2');
             textoFesta.classList.add('mensagem-festa');
             textoFesta.textContent = mensagemFinal;
             festaOverlay.appendChild(textoFesta);
 
-            // Cria os confetes
             const cores = ['#ff4500', '#ff8c00', '#ffd700', '#32cd32', '#1e90ff', '#9400d3'];
-            for (let i = 0; i < 200; i++) { // Mais confetes!
+            for (let i = 0; i < 200; i++) {
                 const confete = document.createElement('div');
                 confete.classList.add('confete-festa');
                 confete.style.left = `${Math.random() * 100}%`;
-                confete.style.top = `${Math.random() * -50}px`; // Começam de fora da tela
+                confete.style.top = `${Math.random() * -50}px`;
                 confete.style.backgroundColor = cores[Math.floor(Math.random() * cores.length)];
                 confete.style.animationDelay = `${Math.random() * 3}s`;
                 confete.style.transform = `rotate(${Math.random() * 360}deg)`;
@@ -247,8 +271,8 @@
         function timer() {
             if (tempoRestanteEmSegundos <= 0) {
                 clearInterval(countdown);
-                atualizarDisplay(); // Mostra 00:00 no contador original
-                criarFestaTelaCheia(); // Inicia a animação em tela cheia
+                atualizarDisplay();
+                criarFestaTelaCheia();
                 return;
             }
             tempoRestanteEmSegundos--;
@@ -257,12 +281,17 @@
 
         function limparFesta() {
             festaOverlay.style.display = 'none';
-            festaOverlay.innerHTML = ''; // Limpa a mensagem e os confetes
+            festaOverlay.innerHTML = '';
         }
+
+        // Novo: Adiciona os listeners aos inputs de tempo
+        minutesInput.addEventListener('input', updateEndTimeDisplay);
+        secondsInput.addEventListener('input', updateEndTimeDisplay);
 
         startBtn.addEventListener('click', () => {
             clearInterval(countdown);
             limparFesta();
+            endTimeDisplay.textContent = ''; // Limpa a hora final ao iniciar
             
             const minutos = parseInt(minutesInput.value) || 0;
             const segundos = parseInt(secondsInput.value) || 0;
@@ -273,7 +302,7 @@
             }
 
             if (tempoRestanteEmSegundos > 0) {
-                atualizarDisplay(); // Atualiza o display imediatamente
+                atualizarDisplay();
                 countdown = setInterval(timer, 1000);
             }
         });
@@ -289,6 +318,7 @@
             minutesInput.value = '';
             secondsInput.value = '';
             messageInput.value = '';
+            endTimeDisplay.textContent = ''; // Limpa a hora final
             atualizarDisplay();
         });
     </script>
