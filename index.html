@@ -1,518 +1,297 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon 3D Editor Premium</title>
+    <title>Contador Regressivo Épico</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;700;900&display=swap');
-        
-        :root {
-            --neon-blue: #00fffc;
-            --neon-pink: #ff00fc;
-            --neon-yellow: #fcff00;
-            --neon-purple: #9d00ff;
-            --glow-speed: 1.8s;
-        }
-        
+        /* Estilos gerais da página */
         body {
-            margin: 0;
-            padding: 0;
-            background: #0a0a0a;
-            font-family: 'Poppins', sans-serif;
-            overflow: hidden;
-            transition: background 0.5s;
-        }
-        
-        /* Tela Principal - Efeito Aprimorado */
-        .main-screen {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            transition: all 0.5s;
-            position: relative;
+            margin: 0;
+            background: #f2f2f7;
+            color: #1c1c1e;
         }
-        
-        .neon-text {
-            color: #fff;
-            font-size: 6em;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 8px;
-            text-shadow: 
-                0 0 10px var(--neon-blue),
-                0 0 20px var(--neon-blue),
-                0 0 40px var(--neon-blue),
-                0 0 80px var(--neon-blue),
-                0 0 160px var(--neon-blue);
-            animation: neon-glow var(--glow-speed) ease-in-out infinite alternate;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            margin: 20px 0;
-            min-height: 1.2em;
-            cursor: pointer;
-            padding: 0 40px;
+
+        /* Container principal do contador */
+        .timer-container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             text-align: center;
-            position: relative;
-            z-index: 2;
+            width: 90%;
+            max-width: 450px;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* Estilo do display de tempo */
+        #display {
+            font-size: 80px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            font-variant-numeric: tabular-nums;
+            transition: font-size 0.3s ease;
         }
         
-        .neon-text:hover {
-            transform: scale(1.08) rotate(-1deg);
-            text-shadow: 
-                0 0 15px var(--neon-pink),
-                0 0 30px var(--neon-pink),
-                0 0 60px var(--neon-pink),
-                0 0 120px var(--neon-pink),
-                0 0 240px var(--neon-pink);
+        /* Estilo para a área de input */
+        .input-area {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-area input {
+            padding: 10px;
+            font-size: 16px;
+            text-align: center;
+            border: 2px solid #e5e5e5;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s;
         }
         
-        .hint {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 1.2em;
-            margin-top: 20px;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-            animation: fadeInOut 3s ease-in-out infinite;
+        #minutesInput, #secondsInput {
+             width: 70px;
+        }
+
+        #messageInput {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .input-area input:focus {
+            border-color: #007aff;
+        }
+
+        .input-area label {
+            font-size: 16px;
+        }
+
+        /* Estilo para os botões de controle */
+        .controls {
+            margin-top: 25px;
         }
         
-        /* Tela de Edição - Estilo Premium */
-        .edit-screen {
+        .controls button {
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            margin: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+
+        .controls button:hover {
+            transform: translateY(-2px);
+        }
+
+        #startBtn { background-color: #34c759; }
+        #pauseBtn { background-color: #ff9500; }
+        #resetBtn { background-color: #5856d6; }
+
+        /* --- ESTILOS DA ANIMAÇÃO FINAL EM TELA CHEIA --- */
+        .festa-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: none;
-            flex-direction: column;
+            display: none; /* Começa escondido */
             justify-content: center;
             align-items: center;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-            opacity: 0;
-            transition: opacity 0.5s ease-out;
-        }
-        
-        .edit-container {
-            width: 90%;
-            max-width: 800px;
-            padding: 50px;
-            background: rgba(10, 10, 10, 0.9);
-            border-radius: 25px;
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
-            border: 3px solid transparent;
-            animation: border-glow 4s linear infinite;
-            transform: scale(0.9);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
+            flex-direction: column;
+            background: linear-gradient(45deg, #8338ec, #ff006e, #3a86ff, #ffbe0b);
+            background-size: 400% 400%;
+            animation: fundoAnimado 15s ease infinite;
+            z-index: 1000;
             overflow: hidden;
         }
-        
-        .edit-container::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink), var(--neon-yellow), var(--neon-purple));
-            z-index: -1;
-            border-radius: 25px;
-            animation: animate 8s linear infinite;
-            opacity: 0.7;
+
+        @keyframes fundoAnimado {
+            0%{background-position:0% 50%}
+            50%{background-position:100% 50%}
+            100%{background-position:0% 50%}
         }
-        
-        .edit-container::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink), var(--neon-yellow), var(--neon-purple));
-            z-index: -2;
-            border-radius: 25px;
-            animation: animate 16s linear infinite;
-            opacity: 0.3;
-            filter: blur(30px);
-        }
-        
-        .input-group {
-            position: relative;
-            margin-bottom: 40px;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 25px;
-            font-size: 1.8em;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(0, 255, 252, 0.3);
-            border-radius: 15px;
-            color: #fff;
-            outline: none;
-            transition: all 0.4s;
+
+        .mensagem-festa {
+            font-size: clamp(2rem, 8vw, 6rem); /* Fonte responsiva */
+            color: white;
             font-weight: 700;
-            letter-spacing: 2px;
-        }
-        
-        .input-group input:focus {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(0, 255, 252, 0.8);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
-            transform: scale(1.02);
-        }
-        
-        .input-group label {
-            position: absolute;
-            top: -15px;
-            left: 20px;
-            background: #0a0a0a;
-            padding: 0 15px;
-            color: var(--neon-blue);
-            font-size: 1.2em;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
-            font-weight: 700;
-        }
-        
-        .btn-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-        }
-        
-        .btn {
-            padding: 18px 35px;
-            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 1.3em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
-            flex: 1;
             text-align: center;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
+            padding: 20px;
+            text-shadow: 0 0 10px rgba(0,0,0,0.3), 0 0 20px rgba(0,0,0,0.2);
+            animation: zoomBounce 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
-        
-        .btn::before {
-            content: '';
+
+        @keyframes zoomBounce {
+            0% { transform: scale(0.5); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            80% { transform: scale(0.95); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .confete-festa {
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: 0.5s;
-            z-index: -1;
+            width: 12px;
+            height: 20px;
+            opacity: 0;
+            animation: cairFesta 5s linear forwards;
         }
-        
-        .btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.7);
-        }
-        
-        .btn:hover::before {
-            left: 100%;
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-        }
-        
-        .btn-cancel {
-            background: linear-gradient(45deg, #ff3c3c, #ff00fc);
-        }
-        
-        /* Animações Premium */
-        @keyframes neon-glow {
+
+        @keyframes cairFesta {
             0% {
-                text-shadow: 
-                    0 0 10px var(--neon-blue),
-                    0 0 20px var(--neon-blue),
-                    0 0 40px var(--neon-blue),
-                    0 0 80px var(--neon-blue),
-                    0 0 160px var(--neon-blue);
-            }
-            25% {
-                text-shadow: 
-                    0 0 15px var(--neon-pink),
-                    0 0 30px var(--neon-pink),
-                    0 0 60px var(--neon-pink),
-                    0 0 120px var(--neon-pink),
-                    0 0 240px var(--neon-pink);
-            }
-            50% {
-                text-shadow: 
-                    0 0 12px var(--neon-yellow),
-                    0 0 24px var(--neon-yellow),
-                    0 0 48px var(--neon-yellow),
-                    0 0 96px var(--neon-yellow),
-                    0 0 192px var(--neon-yellow);
-            }
-            75% {
-                text-shadow: 
-                    0 0 18px var(--neon-purple),
-                    0 0 36px var(--neon-purple),
-                    0 0 72px var(--neon-purple),
-                    0 0 144px var(--neon-purple),
-                    0 0 288px var(--neon-purple);
-            }
-            100% {
-                text-shadow: 
-                    0 0 10px var(--neon-blue),
-                    0 0 20px var(--neon-blue),
-                    0 0 40px var(--neon-blue),
-                    0 0 80px var(--neon-blue),
-                    0 0 160px var(--neon-blue);
-            }
-        }
-        
-        @keyframes animate {
-            0% {
-                filter: hue-rotate(0deg);
-            }
-            100% {
-                filter: hue-rotate(360deg);
-            }
-        }
-        
-        @keyframes fadeInOut {
-            0%, 100% {
-                opacity: 0.5;
-            }
-            50% {
+                transform: translateY(-10vh) rotateZ(0deg);
                 opacity: 1;
             }
-        }
-        
-        @keyframes border-glow {
-            0% {
-                box-shadow: 0 0 30px var(--neon-blue);
-                border-color: var(--neon-blue);
-            }
-            25% {
-                box-shadow: 0 0 40px var(--neon-pink);
-                border-color: var(--neon-pink);
-            }
-            50% {
-                box-shadow: 0 0 50px var(--neon-yellow);
-                border-color: var(--neon-yellow);
-            }
-            75% {
-                box-shadow: 0 0 40px var(--neon-purple);
-                border-color: var(--neon-purple);
-            }
             100% {
-                box-shadow: 0 0 30px var(--neon-blue);
-                border-color: var(--neon-blue);
-            }
-        }
-        
-        /* Efeito de Partículas Avançado */
-        .particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-        
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: var(--neon-blue);
-            border-radius: 50%;
-            animation: float linear infinite;
-            opacity: 0;
-            filter: blur(1px);
-        }
-        
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) translateX(calc(var(--random-x) * 100px)) scale(0.5);
-                opacity: 0;
-            }
-            20% {
-                opacity: var(--particle-opacity);
-            }
-            80% {
-                opacity: var(--particle-opacity);
-            }
-            100% {
-                transform: translateY(-100px) translateX(calc(var(--random-x) * 200px)) scale(1.2);
+                transform: translateY(110vh) rotateZ(720deg);
                 opacity: 0;
             }
         }
-        
-        /* Responsivo Aprimorado */
-        @media (max-width: 768px) {
-            .neon-text {
-                font-size: 3em;
-                letter-spacing: 4px;
-                padding: 0 20px;
-            }
-            
-            .edit-container {
-                padding: 30px;
-                border-radius: 15px;
-            }
-            
-            .input-group input {
-                font-size: 1.3em;
-                padding: 18px;
-            }
-            
-            .btn {
-                padding: 15px 25px;
-                font-size: 1.1em;
-            }
-            
-            .hint {
-                font-size: 1em;
-            }
-        }
+
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
-    
-    <!-- Tela Principal -->
-    <div class="main-screen" id="mainScreen">
-        <div id="displayText" class="neon-text">NEON 3D</div>
-        <div class="hint">Clique no texto para editar</div>
-    </div>
-    
-    <!-- Tela de Edição -->
-    <div class="edit-screen" id="editScreen">
-        <div class="edit-container">
-            <div class="input-group">
-                <label for="textInput">EDITAR TEXTO NEON</label>
-                <input type="text" id="textInput" placeholder="DIGITE SEU TEXTO...">
-            </div>
-            <div class="btn-container">
-                <button id="saveBtn" class="btn">SALVAR</button>
-                <button id="cancelBtn" class="btn btn-cancel">CANCELAR</button>
-            </div>
+
+    <!-- Overlay da animação final -->
+    <div class="festa-overlay" id="festaOverlay"></div>
+
+    <div class="timer-container" id="timerContainer">
+        <h1>Contador Regressivo</h1>
+        <div id="display">00:00</div>
+        
+        <div class="input-area">
+            <input type="number" id="minutesInput" placeholder="0" min="0">
+            <label for="minutesInput">min</label>
+            <input type="number" id="secondsInput" placeholder="0" min="0" max="59">
+            <label for="secondsInput">seg</label>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="Escreva a mensagem final aqui">
+        </div>
+
+        <div class="controls">
+            <button id="startBtn">Iniciar</button>
+            <button id="pauseBtn">Pausar</button>
+            <button id="resetBtn">Zerar</button>
         </div>
     </div>
 
     <script>
-        // Criar partículas flutuantes avançadas
-        const particlesContainer = document.getElementById('particles');
-        const particleCount = 80;
-        
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.classList.add('particle');
-            
-            const posX = Math.random() * 100;
-            const duration = Math.random() * 15 + 10;
-            const delay = Math.random() * 10;
-            const size = Math.random() * 4 + 1;
-            const opacity = Math.random() * 0.7 + 0.3;
-            const colors = ['#00fffc', '#ff00fc', '#fcff00', '#9d00ff'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            
-            particle.style.left = `${posX}%`;
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            particle.style.background = color;
-            particle.style.animationDuration = `${duration}s`;
-            particle.style.animationDelay = `${delay}s`;
-            particle.style.setProperty('--random-x', Math.random() * 4 - 2);
-            particle.style.setProperty('--particle-opacity', opacity);
-            
-            particlesContainer.appendChild(particle);
+        // Seleciona os elementos do HTML
+        const display = document.getElementById('display');
+        const minutesInput = document.getElementById('minutesInput');
+        const secondsInput = document.getElementById('secondsInput');
+        const messageInput = document.getElementById('messageInput');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const festaOverlay = document.getElementById('festaOverlay');
+
+        let countdown;
+        let tempoRestanteEmSegundos;
+
+        function formatarNumero(num) {
+            return num < 10 ? `0${num}` : num;
         }
-        
-        // Elementos da interface
-        const displayText = document.getElementById('displayText');
-        const mainScreen = document.getElementById('mainScreen');
-        const editScreen = document.getElementById('editScreen');
-        const textInput = document.getElementById('textInput');
-        const saveBtn = document.getElementById('saveBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        
-        // Efeito de digitação inicial
-        function typeWriter(text, element, speed, callback) {
-            let i = 0;
-            element.textContent = '';
-            
-            function typing() {
-                if (i < text.length) {
-                    element.textContent += text.charAt(i);
-                    i++;
-                    setTimeout(typing, speed);
-                } else if (callback) {
-                    callback();
-                }
+
+        function atualizarDisplay() {
+            const minutos = Math.floor(tempoRestanteEmSegundos / 60);
+            const segundos = tempoRestanteEmSegundos % 60;
+            display.textContent = `${formatarNumero(minutos)}:${formatarNumero(segundos)}`;
+        }
+
+        function criarFestaTelaCheia() {
+            // Mostra o overlay
+            festaOverlay.style.display = 'flex';
+
+            // Adiciona a mensagem
+            const mensagemFinal = messageInput.value || "Tempo Esgotado!";
+            const textoFesta = document.createElement('h2');
+            textoFesta.classList.add('mensagem-festa');
+            textoFesta.textContent = mensagemFinal;
+            festaOverlay.appendChild(textoFesta);
+
+            // Cria os confetes
+            const cores = ['#ff4500', '#ff8c00', '#ffd700', '#32cd32', '#1e90ff', '#9400d3'];
+            for (let i = 0; i < 200; i++) { // Mais confetes!
+                const confete = document.createElement('div');
+                confete.classList.add('confete-festa');
+                confete.style.left = `${Math.random() * 100}%`;
+                confete.style.top = `${Math.random() * -50}px`; // Começam de fora da tela
+                confete.style.backgroundColor = cores[Math.floor(Math.random() * cores.length)];
+                confete.style.animationDelay = `${Math.random() * 3}s`;
+                confete.style.transform = `rotate(${Math.random() * 360}deg)`;
+                festaOverlay.appendChild(confete);
             }
+        }
+        
+        function timer() {
+            if (tempoRestanteEmSegundos <= 0) {
+                clearInterval(countdown);
+                atualizarDisplay(); // Mostra 00:00 no contador original
+                criarFestaTelaCheia(); // Inicia a animação em tela cheia
+                return;
+            }
+            tempoRestanteEmSegundos--;
+            atualizarDisplay();
+        }
+
+        function limparFesta() {
+            festaOverlay.style.display = 'none';
+            festaOverlay.innerHTML = ''; // Limpa a mensagem e os confetes
+        }
+
+        startBtn.addEventListener('click', () => {
+            clearInterval(countdown);
+            limparFesta();
             
-            typing();
-        }
-        
-        // Abrir tela de edição com animação
-        function openEditor() {
-            mainScreen.style.filter = 'blur(5px) brightness(0.7)';
-            editScreen.style.display = 'flex';
-            setTimeout(() => {
-                editScreen.style.opacity = '1';
-                document.querySelector('.edit-container').style.transform = 'scale(1)';
-            }, 10);
-            textInput.value = displayText.textContent;
-            setTimeout(() => textInput.focus(), 500);
-        }
-        
-        // Fechar tela de edição com animação
-        function closeEditor() {
-            editScreen.style.opacity = '0';
-            document.querySelector('.edit-container').style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                editScreen.style.display = 'none';
-                mainScreen.style.filter = 'none';
-            }, 500);
-        }
-        
-        // Eventos
-        displayText.addEventListener('click', openEditor);
-        
-        saveBtn.addEventListener('click', function() {
-            const newText = textInput.value.trim().toUpperCase() || 'NEON 3D';
-            typeWriter(newText, displayText, 50);
-            closeEditor();
-        });
-        
-        cancelBtn.addEventListener('click', closeEditor);
-        
-        // Permitir salvar com Enter e escapar com ESC
-        textInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                saveBtn.click();
-            } else if (e.key === 'Escape') {
-                closeEditor();
+            const minutos = parseInt(minutesInput.value) || 0;
+            const segundos = parseInt(secondsInput.value) || 0;
+            const tempoTotalDefinido = (minutos * 60) + segundos;
+
+            if (tempoTotalDefinido > 0 && (!tempoRestanteEmSegundos || tempoRestanteEmSegundos === 0)) {
+                 tempoRestanteEmSegundos = tempoTotalDefinido;
+            }
+
+            if (tempoRestanteEmSegundos > 0) {
+                atualizarDisplay(); // Atualiza o display imediatamente
+                countdown = setInterval(timer, 1000);
             }
         });
-        
-        // Fechar ao clicar fora do container de edição
-        editScreen.addEventListener('click', function(e) {
-            if (e.target === editScreen) {
-                closeEditor();
-            }
+
+        pauseBtn.addEventListener('click', () => {
+            clearInterval(countdown);
         });
-        
-        // Efeito de digitação inicial
-        window.addEventListener('load', function() {
-            typeWriter('NEON 3D', displayText, 150);
+
+        resetBtn.addEventListener('click', () => {
+            clearInterval(countdown);
+            limparFesta();
+            tempoRestanteEmSegundos = 0;
+            minutesInput.value = '';
+            secondsInput.value = '';
+            messageInput.value = '';
+            atualizarDisplay();
         });
     </script>
+
 </body>
-</html>
 </html>
